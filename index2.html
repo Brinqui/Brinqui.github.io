@@ -1,661 +1,848 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Puzzle Ballena</title>
-<style>
-  :root{
-  /* paleta */
-  --teal-1: #00b8a9;   /* botón start - oscuro */
-  --teal-2: #4ee5d9;   /* botón start - claro */
-  --coral-1: #ff7a59;  /* restart - principal */
-  --coral-2: #ff5a3d;  /* restart - oscuro */
-  --timer-from: #ffb86b; /* timer gradient start (naranja suave) */
-  --timer-to:   #ff6a5a; /* timer gradient end (coral) */
-  --btn-text: #ffffff;
-  --btn-shadow: rgba(2,12,19,0.36);
-}
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
-  body{
-    font-family:Arial,Helvetica,sans-serif;
-    background-image: url("https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/Ballena_fondo.png");
-    background-position: center center;
-    background-size: cover;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-    color:#fff;
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:16px;
-  }
-  .app { width:100%; max-width:1200px; }
-  h1 { text-align:center; margin-bottom:12px; font-size:1.3rem; }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Puzzle Ballena</title>
+    <style>
+      :root {
+        /* paleta */
+        --teal-1: #00b8a9; /* botón start - oscuro */
+        --teal-2: #4ee5d9; /* botón start - claro */
+        --coral-1: #ff7a59; /* restart - principal */
+        --coral-2: #ff5a3d; /* restart - oscuro */
+        --timer-from: #ffb86b; /* timer gradient start (naranja suave) */
+        --timer-to: #ff6a5a; /* timer gradient end (coral) */
+        --btn-text: #ffffff;
+        --btn-shadow: rgba(2, 12, 19, 0.36);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        background-image: url("https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/Ballena_fondo.png");
+        background-position: center center;
+        background-size: cover;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+      .app {
+        width: 100%;
+        max-width: 1200px;
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 12px;
+        font-size: 1.3rem;
+      }
 
-  /* START overlay */
-  #start-overlay { position: fixed; inset:0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.28); z-index:999; }
-  #start-button {
-    padding: 14px 28px;
-    border-radius: 10px;
-    border: 0;
-    background: linear-gradient(135deg, var(--teal-1), var(--teal-2));
-    color: var(--btn-text);
-    cursor: pointer;
-    font-size: 1.05rem;
-    box-shadow: 0 10px 26px var(--btn-shadow), 0 0 0 6px rgba(78,229,217,0.06) inset;
-    transition: transform .14s ease, box-shadow .14s ease, filter .12s ease;
-    font-weight:700;
-  }
-  #start-button:hover,
-  #start-button:focus {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 38px rgba(2,12,19,0.45), 0 0 0 8px rgba(78,229,217,0.08) inset;
-  filter: saturate(1.06);
-  }
+      /* START overlay */
+      #start-overlay {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.28);
+        z-index: 999;
+      }
+      #start-button {
+        padding: 14px 28px;
+        border-radius: 10px;
+        border: 0;
+        background: linear-gradient(135deg, var(--teal-1), var(--teal-2));
+        color: var(--btn-text);
+        cursor: pointer;
+        font-size: 1.05rem;
+        box-shadow: 0 10px 26px var(--btn-shadow),
+          0 0 0 6px rgba(78, 229, 217, 0.06) inset;
+        transition: transform 0.14s ease, box-shadow 0.14s ease,
+          filter 0.12s ease;
+        font-weight: 700;
+      }
+      #start-button:hover,
+      #start-button:focus {
+        transform: translateY(-3px);
+        box-shadow: 0 16px 38px rgba(2, 12, 19, 0.45),
+          0 0 0 8px rgba(78, 229, 217, 0.08) inset;
+        filter: saturate(1.06);
+      }
 
-  /* Zona de juego */
-  #game-area { display:none; flex-direction:column; gap:12px; align-items:center; width:100%; }
+      /* Zona de juego */
+      #game-area {
+        display: none;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        width: 100%;
+      }
 
-  /* Contenedor de los slots */
-  .whale-wrap {
-    width:100%;
-    max-width:1100px;
-    aspect-ratio: 858/458;
-    position:relative;
-    margin: 0 auto;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    transform: scaleX(-1);
-  }
+      /* Contenedor de los slots */
+      .whale-wrap {
+        width: 100%;
+        max-width: 1100px;
+        aspect-ratio: 858/458;
+        position: relative;
+        margin: 0 auto;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        transform: scaleX(-1);
+      }
 
-  /* Configuración slots */
-  .slot {
-  position: absolute;
-  width: var(--w, 14%);
-  aspect-ratio: var(--ar, 1 / 1);
-  border: none;                 /* quitar el estilo en caja */
-  background: transparent;
-  pointer-events: auto;
-  overflow: visible;            /* para que el halo pueda sobresalir */
-  transition: transform .12s ease;
-}
+      /* Configuración slots */
+      .slot {
+        position: absolute;
+        width: var(--w, 14%);
+        aspect-ratio: var(--ar, 1 / 1);
+        border: none;
+        background: transparent;
+        pointer-events: auto;
+        overflow: visible;
+        transition: transform 0.12s ease;
+      }
 
-  .slot::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%) scale(1);
-  width: clamp(12px, 2.2vw, 22px);   /* se adapta a pantallas */
-  height: clamp(12px, 2.2vw, 22px);
-  border-radius: 50%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(220,220,220,0.9));
-  box-shadow:
-    0 8px 18px rgba(0,0,0,0.25),     /* sombra para dar profundidad */
-    0 0 0 6px rgba(255,255,255,0.06) inset; /* sutil borde interno */
-  transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
-  z-index: 1;
-}
+      .slot::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) scale(1);
+        width: clamp(12px, 2.2vw, 22px);
+        height: clamp(12px, 2.2vw, 22px);
+        border-radius: 50%;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.95),
+          rgba(220, 220, 220, 0.9)
+        );
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25),
+          0 0 0 6px rgba(255, 255, 255, 0.06) inset;
+        transition: transform 0.12s ease, box-shadow 0.12s ease,
+          opacity 0.12s ease;
+        z-index: 1;
+      }
 
-  .slot:not(.filled):hover::before,
-  .slot.dragover::before {
-    transform: translate(-50%, -50%) scale(1.5);
-    box-shadow:
-      0 12px 30px rgba(0,0,0,0.30),
-      0 0 0 10px rgba(255,255,255,0.06);
-  }
+      .slot:not(.filled):hover::before,
+      .slot.dragover::before {
+        transform: translate(-50%, -50%) scale(1.5);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3),
+          0 0 0 10px rgba(255, 255, 255, 0.06);
+      }
 
-  .slot.filled::before {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.8);
-  }
-  /* Slot + pieza */
-  .slot.filled {
-    pointer-events: none;
-    border: none;
-    background: transparent;
-  }
+      .slot.filled::before {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+      }
+      /* Slot + pieza */
+      .slot.filled {
+        pointer-events: none;
+        border: none;
+        background: transparent;
+      }
 
-  .slot .placed {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  }
+      .slot .placed {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-  .pieces-row{width:100%; max-width:980px; display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-top:14px; transform:translateY(-50px)}
+      .pieces-row {
+        width: 100%;
+        max-width: 980px;
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 14px;
+        transform: translateY(-50px);
+      }
 
-  .piece {
-    width:120px; height:120px; border-radius:12px;
-    background: transparent;
-    display:flex; align-items:center; justify-content:center;
-    cursor:grab; user-select:none; border: 2px solid rgba(255,255,255,0.06); overflow:hidden;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-  }
-  .piece img {
-    width:100%;
-    height:100%;
-    object-fit: contain;
-    display:block;
-    transition: transform .18s ease;
-    pointer-events: none;
-    transform: scaleX(-1);
-  }
+      .piece {
+        width: 120px;
+        height: 120px;
+        border-radius: 12px;
+        background: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: grab;
+        user-select: none;
+        border: 2px solid rgba(255, 255, 255, 0.06);
+        overflow: hidden;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      }
+      .piece img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        transition: transform 0.18s ease;
+        pointer-events: none;
+        transform: scaleX(-1);
+      }
 
-  .slot .piece {
-    width:100%;
-    height:100%;
-    border-radius:8px;
-    background:transparent;
-    border:none;
-    cursor:default;
-    box-shadow:none;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
+      .slot .piece {
+        width: 100%;
+        height: 100%;
+        border-radius: 8px;
+        background: transparent;
+        border: none;
+        cursor: default;
+        box-shadow: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-  /* --- Ajustes finos por pieza (nudges) --- */
-  .slot[data-id="1"] .piece img { transform: translate(-6px, 4px); } /* Cola */
-  .slot[data-id="2"] .piece img { transform: scale(0.7) translate(-2px, -6px); } /* Costillas */
-  .slot[data-id="3"] .piece img { transform: scale(0.5) translate(2px, -6px); }  /* Cuello */
-  .slot[data-id="4"] .piece img { transform: scale(0.9) translate(6px, -8px); }  /* Cabeza */
-  .slot[data-id="5"] .piece img { transform: translate(0px, 12px); }  /* Aletas */
+      /* --- Ajustes finos por pieza (nudges) --- */
+      .slot[data-id="1"] .piece img {
+        transform: translate(-6px, 4px);
+      } /* Cola */
+      .slot[data-id="2"] .piece img {
+        transform: scale(0.7) translate(-2px, -6px);
+      } /* Costillas */
+      .slot[data-id="3"] .piece img {
+        transform: scale(0.5) translate(2px, -6px);
+      } /* Cuello */
+      .slot[data-id="4"] .piece img {
+        transform: scale(0.9) translate(6px, -8px);
+      } /* Cabeza */
+      .slot[data-id="5"] .piece img {
+        transform: translate(0px, 12px);
+      } /* Aletas */
 
-  /* timer */
-  #timer-container{ /* mantén tu estilo, solo asegúrate que el contenedor tenga contraste */
-  width:90%;
-  max-width:720px;
-  height:36px;
-  background:rgba(255,255,255,0.08);
-  border-radius:8px;
-  position:relative;
-  overflow:hidden;
-  margin:8px auto;
-  transform: translateY(30px);
-  box-shadow: inset 0 -3px 8px rgba(0,0,0,0.18);
-}
-  #timer-bar {
-  height:120%;
-  width:100%;
-  background:
-    linear-gradient(90deg, rgba(0,0,0,0.20), rgba(0,0,0,0.28)),
-    linear-gradient(90deg, var(--teal-1), var(--teal-2));
-  border-radius:14px;
-  transition: width 1s linear, background .2s ease, filter .12s ease;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.28) inset;
-  transform: translateY(-10%);
-}
-  #timer-text{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-weight:700;font-size:0.9rem}
+      /* timer */
+      #timer-container {
+        width: 90%;
+        max-width: 720px;
+        height: 36px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+        margin: 8px auto;
+        transform: translateY(30px);
+        box-shadow: inset 0 -3px 8px rgba(0, 0, 0, 0.18);
+      }
+      #timer-bar {
+        height: 120%;
+        width: 100%;
+        background: linear-gradient(
+            90deg,
+            rgba(0, 0, 0, 0.2),
+            rgba(0, 0, 0, 0.28)
+          ),
+          linear-gradient(90deg, var(--teal-1), var(--teal-2));
+        border-radius: 14px;
+        transition: width 1s linear, background 0.2s ease, filter 0.12s ease;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28) inset;
+        transform: translateY(-10%);
+      }
+      #timer-text {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
 
-  #restart-container{width:100%;display:flex;justify-content:center;margin-top:12px}
-  #restart-btn{
-    display:none;
-    border: 0;
-    padding: 10px 18px;
-    background:
-    linear-gradient(90deg, rgba(0,0,0,0.20), rgba(0,0,0,0.28)),
-    linear-gradient(90deg, var(--teal-1), var(--teal-2));
-  border-radius:14px;
-    color: var(--btn-text);
-    cursor: pointer;
-    font-size: 1.05rem;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.28) inset;
-    transition: transform .14s ease, box-shadow .14s ease, filter .12s ease;
-    font-weight:700;
-  }
-  #restart-btn:hover,
-  #restart-btn:focus{
-  transform: translateY(-2px);
-  box-shadow: 0 14px 34px rgba(0,0,0,0.42), 0 0 0 8px rgba(255,122,89,0.08) inset;
-  filter: brightness(1.02);
-  }
+      #restart-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-top: 12px;
+      }
+      #restart-btn {
+        display: none;
+        border: 0;
+        padding: 10px 18px;
+        background: linear-gradient(
+            90deg,
+            rgba(0, 0, 0, 0.2),
+            rgba(0, 0, 0, 0.28)
+          ),
+          linear-gradient(90deg, var(--teal-1), var(--teal-2));
+        border-radius: 14px;
+        color: var(--btn-text);
+        cursor: pointer;
+        font-size: 1.05rem;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28) inset;
+        transition: transform 0.14s ease, box-shadow 0.14s ease,
+          filter 0.12s ease;
+        font-weight: 700;
+      }
+      #restart-btn:hover,
+      #restart-btn:focus {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.42),
+          0 0 0 8px rgba(255, 122, 89, 0.08) inset;
+        filter: brightness(1.02);
+      }
 
-  .confetti { position: fixed; pointer-events: none; z-index: 9999; will-change: transform, opacity; border-radius: 2px; }
+      .confetti {
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        will-change: transform, opacity;
+        border-radius: 2px;
+      }
 
-  @media (max-width:900px){
-    .piece { width:100px; height:100px; }
-    .slot { width:16%; }
-  }
-  @media (max-width:640px){
-    .piece{width:80px;height:80px}
-    .slot{width:20%}
-  }
-</style>
-</head>
-<body>
-  <div class="app">
-    <div id="game-area" aria-hidden="true">
-      <div id="timer-container"><div id="timer-bar"></div><div id="timer-text">30</div></div>
+      @media (max-width: 900px) {
+        .piece {
+          width: 100px;
+          height: 100px;
+        }
+        .slot {
+          width: 16%;
+        }
+      }
+      @media (max-width: 640px) {
+        .piece {
+          width: 80px;
+          height: 80px;
+        }
+        .slot {
+          width: 20%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div id="game-area" aria-hidden="true">
+        <div id="timer-container">
+          <div id="timer-bar"></div>
+          <div id="timer-text">30</div>
+        </div>
 
-      <!-- Contenedor de los slots -->
-      <div id="whale" class="whale-wrap">
+        <!-- Contenedor de los slots -->
+        <div id="whale" class="whale-wrap">
+          <!-- Ajusté left/top/--w/--ar — estos valores están calibrados para tu imagen -->
+          <div
+            class="slot"
+            data-id="1"
+            style="left: 7%; top: 31%; --w: 45%; --ar: 4.5 / 1"
+          ></div>
+          <div
+            class="slot"
+            data-id="2"
+            style="left: 42%; top: 24%; --w: 26%; --ar: 1.1 / 1"
+          ></div>
+          <div
+            class="slot"
+            data-id="3"
+            style="left: 60.5%; top: 35%; --w: 11%; --ar: 1.2 / 1"
+          ></div>
+          <div
+            class="slot"
+            data-id="4"
+            style="left: 66%; top: 30%; --w: 26%; --ar: 1.2 / 1"
+          ></div>
+          <div
+            class="slot"
+            data-id="5"
+            style="left: 46%; top: 39%; --w: 20%; --ar: 1.25 / 1"
+          ></div>
+        </div>
 
-        <!-- Ajusté left/top/--w/--ar — estos valores están calibrados para tu imagen -->
-        <div class="slot" data-id="1" style="left:7%; top:31%; --w:45%; --ar: 4.5 / 1;"></div>
-        <div class="slot" data-id="2" style="left:42%; top:24%; --w:26%; --ar: 1.1 / 1;"></div>
-        <div class="slot" data-id="3" style="left:60.5%; top:35%; --w:11%; --ar: 1.2 / 1;"></div>
-        <div class="slot" data-id="4" style="left:66%; top:30%; --w:26%; --ar: 1.2 / 1;"></div>
-        <div class="slot" data-id="5" style="left:46%; top:39%; --w:20%; --ar: 1.25 / 1;"></div>
+        <!-- Fila de piezas -->
+        <div class="pieces-row" id="pieces-row" aria-label="Piezas">
+          <div class="piece" draggable="true" data-id="1" title="Cola">
+            <img
+              src="https://github.com/Brinqui/Brinqui.github.io/blob/main/Ballena_cola.png?raw=true"
+              alt="Cola"
+            />
+          </div>
+          <div class="piece" draggable="true" data-id="2" title="Costillas">
+            <img
+              src="https://github.com/Brinqui/Brinqui.github.io/blob/main/Ballena_costillas.png?raw=true"
+              alt="Costillas"
+            />
+          </div>
+          <div class="piece" draggable="true" data-id="3" title="Cuello">
+            <img
+              src="https://github.com/Brinqui/Brinqui.github.io/blob/main/Ballena_cuello.png?raw=true"
+              alt="Cuello"
+            />
+          </div>
+          <div class="piece" draggable="true" data-id="4" title="Cabeza">
+            <img
+              src="https://github.com/Brinqui/Brinqui.github.io/blob/main/Ballena_craneo.png?raw=true"
+              alt="Cabeza"
+            />
+          </div>
+          <div class="piece" draggable="true" data-id="5" title="Aletas">
+            <img
+              src="https://github.com/Brinqui/Brinqui.github.io/blob/main/Ballena_aleta.png?raw=true"
+              alt="Aletas"
+            />
+          </div>
+        </div>
 
+        <div id="restart-container">
+          <button id="restart-btn" aria-hidden="true">Volver a empezar</button>
+        </div>
       </div>
 
-      <!-- Fila de piezas -->
-      <div class="pieces-row" id="pieces-row" aria-label="Piezas">
-        <div class="piece" draggable="true" data-id="1" title="Cola">
-          <img src="https://github.com/Brinqui/Brinqui.github.io/blob/main/Ballena_cola.png?raw=true" alt="Cola">
-        </div>
-        <div class="piece" draggable="true" data-id="2" title="Costillas">
-          <img src="https://github.com/Brinqui/Brinqui.github.io/blob/main/Ballena_costillas.png?raw=true" alt="Costillas">
-        </div>
-        <div class="piece" draggable="true" data-id="3" title="Cuello">
-          <img src="https://github.com/Brinqui/Brinqui.github.io/blob/main/Ballena_cuello.png?raw=true" alt="Cuello">
-        </div>
-        <div class="piece" draggable="true" data-id="4" title="Cabeza">
-          <img src="https://github.com/Brinqui/Brinqui.github.io/blob/main/Ballena_craneo.png?raw=true" alt="Cabeza">
-        </div>
-        <div class="piece" draggable="true" data-id="5" title="Aletas">
-          <img src="https://github.com/Brinqui/Brinqui.github.io/blob/main/Ballena_aleta.png?raw=true" alt="Aletas">
-        </div>
+      <div id="start-overlay">
+        <button id="start-button">Comenzar</button>
       </div>
-
-      <div id="restart-container"><button id="restart-btn" aria-hidden="true">Volver a empezar</button></div>
     </div>
 
-    <div id="start-overlay">
-      <button id="start-button">Comenzar</button>
-    </div>
-  </div>
+    <!-- PARTE FUNCIONAL -->
+    <script>
+      /* ---------- DOM ---------- */
+      const startOverlay = document.getElementById("start-overlay");
+      const startButton = document.getElementById("start-button");
+      const gameArea = document.getElementById("game-area");
+      const slots = Array.from(document.querySelectorAll(".slot"));
+      const piecesRow = document.getElementById("pieces-row");
+      const restartBtn = document.getElementById("restart-btn");
+      const restartContainer = document.getElementById("restart-container");
+      const timerText = document.getElementById("timer-text");
+      const timerBar = document.getElementById("timer-bar");
 
-  <!-- PARTE FUNCIONAL -->
-<script>
-/* ---------- DOM ---------- */
-const startOverlay = document.getElementById('start-overlay');
-const startButton = document.getElementById('start-button');
-const gameArea = document.getElementById('game-area');
-const slots = Array.from(document.querySelectorAll('.slot'));
-const piecesRow = document.getElementById('pieces-row');
-const restartBtn = document.getElementById('restart-btn');
-const restartContainer = document.getElementById('restart-container');
-const timerText = document.getElementById('timer-text');
-const timerBar = document.getElementById('timer-bar');
+      /* State Confetti */
+      let _confettiState = null;
 
-/* State Confetti */
-let _confettiState = null;
+      /* ---------- Contador ---------- */
+      let totalTime = 30;
+      let timeRemaining = totalTime;
+      let timerInterval = null;
+      let inactivityTimeout = null;
 
-/* ---------- Contador ---------- */
-let totalTime = 30;
-let timeRemaining = totalTime;
-let timerInterval = null;
-let inactivityTimeout = null;
-
-function startTimer(){
-  clearInterval(timerInterval);
-  timeRemaining = totalTime;
-  timerBar.style.width = '100%';
-  timerText.textContent = timeRemaining;
-  void timerBar.offsetWidth;
-  timerBar.style.transition = `width ${totalTime}s linear`;
-  requestAnimationFrame(() => {
-    timerBar.style.width = '0%';
-  });
-  timerInterval = setInterval(() => {
-    timeRemaining--;
-    timerText.textContent = timeRemaining;
-    if(timeRemaining <= 0){
-      clearInterval(timerInterval);
-      endGame(false);
-    }
-  }, 1000);
-}
-function stopTimer(){ clearInterval(timerInterval); }
-
-function freezeTimerBar() {
-  try {
-    // ancho del contenedor padre (timer-container)
-    const containerWidth = timerBar.parentElement.clientWidth || 1;
-    // ancho actual de la barra en píxeles (puede estar en animación)
-    const barWidthPx = parseFloat(getComputedStyle(timerBar).width) || 0;
-    // convertimos a porcentaje y lo fijamos
-    const pct = Math.max(0, Math.min(100, (barWidthPx / containerWidth) * 100));
-    // removemos la transición para fijar el valor sin animación extra
-    timerBar.style.transition = 'none';
-    timerBar.style.width = pct + '%';
-    // quitamos estado urgente por si estaba activo
-    timerBar.classList.remove('urgent');
-  } catch (err) {
-    // en caso de error, simplemente paramos la animación poniendo width actual en 0–100
-    console.warn('freezeTimerBar error:', err);
-    timerBar.style.transition = 'none';
-  }
-}
-
-/* ---------- Show/hide ---------- */
-function showGame(){
-  startOverlay.style.display = 'none';
-  gameArea.style.display = 'flex';
-  gameArea.style.flexDirection = 'column';
-  gameArea.style.opacity = '1';
-  gameArea.style.pointerEvents = 'auto';
-  gameArea.setAttribute('aria-hidden','false');
-  restartBtn.style.display = 'none';
-  restartBtn.setAttribute('aria-hidden','true');
-  restartContainer.style.pointerEvents = 'none';
-}
-function showStart(){
-  gameArea.style.display = 'none';
-  startOverlay.style.display = 'flex';
-  gameArea.setAttribute('aria-hidden','true');
-}
-
-/* ---------- Drag & Drop ---------- */
-let draggingPiece = null;
-
-// Ajustes a nivel DOM
-document.addEventListener('dragstart', (e) => {
-  const el = e.target.closest('.piece');
-  if (!el) return;
-  // Si no se puede arrastrar, se ignora (safety)
-  if (!el.draggable) {
-    e.preventDefault();
-    return;
-  }
-  draggingPiece = el;
-  try{ e.dataTransfer.setData('text/plain', el.dataset.id); }catch(_){}
-  // Creación imagen
-  const imgEl = el.querySelector('img');
-  if(imgEl){
-    try{
-      const crt = imgEl.cloneNode(true);
-      crt.style.width = (el.clientWidth || 120) + 'px';
-      crt.style.height = (el.clientHeight || 120) + 'px';
-      crt.style.position = 'absolute';
-      crt.style.top = '-9999px';
-      document.body.appendChild(crt);
-      e.dataTransfer.setDragImage(crt, crt.clientWidth/2, crt.clientHeight/2);
-      setTimeout(()=>crt.remove(),0);
-    }catch(_){}
-  }
-  el.style.opacity = '0.6';
-});
-
-document.addEventListener('dragend', (e) => {
-  const el = e.target.closest('.piece');
-  if (!el) return;
-  draggingPiece = null;
-  el.style.opacity = '';
-});
-
-/* Soltar */
-slots.forEach(s => {
-  s.addEventListener('dragover', e => {
-    // No permite colocar la figura si el espacio está ocupado 
-    if (s.classList.contains('filled')) return;
-    e.preventDefault();
-    // añade la clase para el halo visual
-    s.classList.add('dragover');
-  });
-
-  s.addEventListener('dragleave', e => {
-    // quitar halo si sales del slot
-    s.classList.remove('dragover');
-  });
-
-  s.addEventListener('drop', e => {
-    e.preventDefault();
-    // quitar halo al soltar
-    s.classList.remove('dragover');
-
-    if(!draggingPiece) return;
-
-    // Ignora si ya está ocupado
-    if (s.classList.contains('filled')) {
-      draggingPiece = null;
-      return;
-    }
-
-    // Previene la colocación de varias piezas en un mismo espacio
-    if(s.querySelector('.piece')) {
-      s.animate([{transform:'translateY(0)'},{transform:'translateY(-6px)'},{transform:'translateY(0)'}], {duration:180});
-      draggingPiece = null;
-      return;
-    }
-
-    // Solo acepta si tienen misma id
-    if(draggingPiece.dataset.id === s.dataset.id){
-      const placed = document.createElement('div');
-      placed.className = 'placed';
-      placed.appendChild(draggingPiece);
-      s.appendChild(placed);
-
-      // Marca el slot como ocupado y evita que la pieza se pueda mover
-      s.classList.add('filled');
-      draggingPiece.draggable = false;
-      draggingPiece.style.cursor = 'default';
-      checkCompletion();
-    } else {
-      s.animate([{transform:'translateY(0)'},{transform:'translateY(-8px)'},{transform:'translateY(0)'}], {duration:200});
-    }
-    draggingPiece = null;
-  });
-});
-
-/* Fallback */
-(function touchFallback(){
-  let touchEl = null;
-  document.addEventListener('touchstart', e => {
-    const t = e.target.closest('.piece');
-    if(t && t.draggable) touchEl = t;
-  }, {passive:true});
-  document.addEventListener('touchend', e => {
-    const ts = e.changedTouches[0];
-    const elUnder = document.elementFromPoint(ts.clientX, ts.clientY);
-    const slot = elUnder && elUnder.closest('.slot');
-    if(slot && touchEl){
-      if(slot.classList.contains('filled')) { touchEl = null; return; }
-      if(!slot.querySelector('.piece') && touchEl.dataset.id === slot.dataset.id){
-        const placed = document.createElement('div');
-        placed.className = 'placed';
-        placed.appendChild(touchEl);
-        slot.appendChild(placed);
-        slot.classList.add('filled');
-        touchEl.draggable = false;
-        touchEl.style.cursor = 'default';
-
-        checkCompletion();
+      function startTimer() {
+        clearInterval(timerInterval);
+        timeRemaining = totalTime;
+        timerBar.style.width = "100%";
+        timerText.textContent = timeRemaining;
+        void timerBar.offsetWidth;
+        timerBar.style.transition = `width ${totalTime}s linear`;
+        requestAnimationFrame(() => {
+          timerBar.style.width = "0%";
+        });
+        timerInterval = setInterval(() => {
+          timeRemaining--;
+          timerText.textContent = timeRemaining;
+          if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            endGame(false);
+          }
+        }, 1000);
       }
-    }
-    touchEl = null;
-  }, {passive:true});
-})();
-
-/* ---------- Funciones completo y reinicio ---------- */
-function checkCompletion(){
-  const ok = slots.every(slot => {
-    const child = slot.querySelector('.piece');
-    return child && child.dataset.id === slot.dataset.id;
-  });
-  if(ok){
-    endGame(true);
-  }
-}
-
-function restartRound(){
-  clearTimeout(inactivityTimeout);
-  restartBtn.style.display = 'none';
-  restartBtn.setAttribute('aria-hidden','true');
-  restartContainer.style.pointerEvents = 'none';
-  resetPuzzle(true);
-  startTimer();
-}
-
-/* Reinicio puzzle */
-function resetPuzzle(keepVisible){
-  slots.forEach(slot => {
-    slot.classList.remove('filled');
-  });
-
-  // Devuelve las piezas a la fila y las hace arrastrables
-  slots.forEach(slot => {
-    const placedPieces = slot.querySelectorAll('.placed .piece');
-    placedPieces.forEach(p => {
-      p.draggable = true;
-      p.style.cursor = 'grab';
-      piecesRow.appendChild(p);
-    });
-    const wrappers = slot.querySelectorAll('.placed');
-    wrappers.forEach(w => w.remove());
-  });
-
-  // Check piezas
-  const allPieces = Array.from(document.querySelectorAll('.piece'));
-  allPieces.forEach(p => {
-    p.draggable = true;
-    p.style.cursor = 'grab';
-    if(p.parentElement !== piecesRow) piecesRow.appendChild(p);
-    p.style.display = '';
-  });
-
-  draggingPiece = null;
-  timeRemaining = totalTime;
-  timerBar.style.width = '100%';
-  timerText.textContent = timeRemaining;
-  if(!keepVisible) stopTimer();
-}
-
-/* ---------- Efecto confetti ---------- */
-function spawnParabolicConfetti(count = 90) {
-  if (_confettiState && _confettiState.active) count = Math.min(40, count);
-
-  const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-  const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
-
-  const centerX = vw / 2;
-  const centerY = vh / 2 + 80;
-  const now = performance.now();
-  const particles = [];
-  const gravity = 1800;
-
-  const origins = [
-    { x: -30, y: vh + 30 },
-    { x: vw + 30, y: vh + 30 },
-  ];
-
-  for (let i = 0; i < count; i++) {
-    const origin = origins[Math.floor(Math.random() * origins.length)];
-    const x0 = origin.x + (Math.random() - 0.5) * 80;
-    const y0 = origin.y + (Math.random() - 0.5) * 40;
-    const targetSpread = Math.max(60, Math.min(220, vw * 0.12));
-    const tx = centerX + (Math.random() - 0.5) * targetSpread;
-    const ty = centerY + (Math.random() - 0.5) * 40;
-    const dx = tx - x0;
-    const dy = ty - y0;
-    const base = 0.75 + Math.random() * 0.8;
-    const distFactor = Math.min(2.2, Math.sqrt((dx*dx + dy*dy) / (vw*vw + vh*vh)) * 3.0);
-    const t_f = Math.max(0.5, base * (1 + distFactor * 0.6));
-    const vx = dx / t_f;
-    const vy = (dy - 0.5 * gravity * t_f * t_f) / t_f;
-    const sizeW = 6 + Math.random() * 14;
-    const sizeH = 8 + Math.random() * 16;
-    const color = `hsl(${Math.floor(Math.random() * 360)} 85% 55%)`;
-    const rotSpeed = (Math.random() - 0.5) * 720;
-    const life = Math.max(700, t_f * 1000 + 800 + Math.random() * 600);
-
-    const el = document.createElement('div');
-    el.className = 'confetti';
-    el.style.width = sizeW + 'px';
-    el.style.height = sizeH + 'px';
-    el.style.background = color;
-    el.style.left = '0px';
-    el.style.top = '0px';
-    el.style.opacity = '1';
-    el.style.transform = `translate(${x0}px, ${y0}px) rotate(0deg)`;
-    el.style.borderRadius = (Math.random() > 0.5 ? '1px' : '50%');
-    document.body.appendChild(el);
-
-    particles.push({ el, x: x0, y: y0, vx, vy, rotSpeed, start: now, life });
-  }
-
-  _confettiState = { active: true, particles };
-  let last = now;
-  function step(ts) {
-    const dt = Math.min(0.03, (ts - last) / 1000);
-    last = ts;
-    for (let i = particles.length - 1; i >= 0; i--) {
-      const p = particles[i];
-      const t = ts - p.start;
-      if (t >= p.life) {
-        if (p.el.parentElement) p.el.remove();
-        particles.splice(i, 1);
-        continue;
+      function stopTimer() {
+        clearInterval(timerInterval);
       }
-      p.vy += gravity * dt;
-      p.x += p.vx * dt;
-      p.y += p.vy * dt;
-      const rotation = (p.rotSpeed * (t / 1000)) % 360;
-      p.el.style.transform = `translate(${p.x}px, ${p.y}px) rotate(${rotation}deg)`;
-      const alpha = Math.max(0, 1 - t / p.life);
-      p.el.style.opacity = alpha;
-    }
-    if (particles.length > 0) requestAnimationFrame(step);
-    else { _confettiState.active = false; _confettiState = null; }
-  }
-  requestAnimationFrame(step);
-}
 
-/* ---------- Fin Juego ---------- */
-function endGame(success){
-  stopTimer();
-  if(success) {
-    freezeTimerBar();
-    try{ spawnParabolicConfetti(90); }catch(e){ console.warn('Confetti error:', e); }
-  }else{
-    disablePieces();
-  }
+      function freezeTimerBar() {
+        try {
+          const containerWidth = timerBar.parentElement.clientWidth || 1;
+          const barWidthPx = parseFloat(getComputedStyle(timerBar).width) || 0;
+          const pct = Math.max(
+            0,
+            Math.min(100, (barWidthPx / containerWidth) * 100)
+          );
+          timerBar.style.transition = "none";
+          timerBar.style.width = pct + "%";
+          timerBar.classList.remove("urgent");
+        } catch (err) {
+          console.warn("freezeTimerBar error:", err);
+          timerBar.style.transition = "none";
+        }
+      }
 
-  restartBtn.style.display = 'inline-block';
-  restartBtn.setAttribute('aria-hidden','false');
-  restartContainer.style.pointerEvents = 'auto';
+      /* ---------- Show/hide ---------- */
+      function showGame() {
+        startOverlay.style.display = "none";
+        gameArea.style.display = "flex";
+        gameArea.style.flexDirection = "column";
+        gameArea.style.opacity = "1";
+        gameArea.style.pointerEvents = "auto";
+        gameArea.setAttribute("aria-hidden", "false");
+        restartBtn.style.display = "none";
+        restartBtn.setAttribute("aria-hidden", "true");
+        restartContainer.style.pointerEvents = "none";
+      }
+      function showStart() {
+        gameArea.style.display = "none";
+        startOverlay.style.display = "flex";
+        gameArea.setAttribute("aria-hidden", "true");
+      }
 
-  clearTimeout(inactivityTimeout);
-  inactivityTimeout = setTimeout(() => {
-    resetPuzzle(false);
-    showStart();
-  }, 60000);
-}
-/* Desactivar piezas */
-function disablePieces() {
-    const pieces = document.querySelectorAll('.piece');
-    pieces.forEach(piece => {
-        // Desactiva el arrastre y aplica clase para estilo visual
-        piece.setAttribute('draggable', 'false');
-        piece.draggable = false;
-        piece.classList.add('disabled');
-        piece.style.cursor = 'not-allowed';
-    });
-    // Evita soltar en los slots
-    slots.forEach(s => {
-      s.style.pointerEvents = 'none';
-    });
-}
+      /* ---------- Drag & Drop ---------- */
+      let draggingPiece = null;
 
-/* ---------- Inicio juego ---------- */
-startButton.addEventListener('click', () => {
-  resetPuzzle(true);
-  showGame();
-  startTimer();
-});
-restartBtn.addEventListener('click', restartRound);
+      // Ajustes a nivel DOM
+      document.addEventListener("dragstart", (e) => {
+        const el = e.target.closest(".piece");
+        if (!el) return;
+        // Si no se puede arrastrar, se ignora (safety)
+        if (!el.draggable) {
+          e.preventDefault();
+          return;
+        }
+        draggingPiece = el;
+        try {
+          e.dataTransfer.setData("text/plain", el.dataset.id);
+        } catch (_) {}
+        // Creación imagen
+        const imgEl = el.querySelector("img");
+        if (imgEl) {
+          try {
+            const crt = imgEl.cloneNode(true);
+            crt.style.width = (el.clientWidth || 120) + "px";
+            crt.style.height = (el.clientHeight || 120) + "px";
+            crt.style.position = "absolute";
+            crt.style.top = "-9999px";
+            document.body.appendChild(crt);
+            e.dataTransfer.setDragImage(
+              crt,
+              crt.clientWidth / 2,
+              crt.clientHeight / 2
+            );
+            setTimeout(() => crt.remove(), 0);
+          } catch (_) {}
+        }
+        el.style.opacity = "0.6";
+      });
 
-/* show start on load */
-showStart();
-</script>
-</body>
+      document.addEventListener("dragend", (e) => {
+        const el = e.target.closest(".piece");
+        if (!el) return;
+        draggingPiece = null;
+        el.style.opacity = "";
+      });
+
+      /* Soltar */
+      slots.forEach((s) => {
+        s.addEventListener("dragover", (e) => {
+          if (s.classList.contains("filled")) return;
+          e.preventDefault();
+          s.classList.add("dragover");
+        });
+
+        s.addEventListener("dragleave", (e) => {
+          s.classList.remove("dragover");
+        });
+
+        s.addEventListener("drop", (e) => {
+          e.preventDefault();
+          s.classList.remove("dragover");
+
+          if (!draggingPiece) return;
+
+          if (s.classList.contains("filled")) {
+            draggingPiece = null;
+            return;
+          }
+
+          if (s.querySelector(".piece")) {
+            s.animate(
+              [
+                { transform: "translateY(0)" },
+                { transform: "translateY(-6px)" },
+                { transform: "translateY(0)" },
+              ],
+              { duration: 180 }
+            );
+            draggingPiece = null;
+            return;
+          }
+
+          // Solo acepta si tienen misma id
+          if (draggingPiece.dataset.id === s.dataset.id) {
+            const placed = document.createElement("div");
+            placed.className = "placed";
+            placed.appendChild(draggingPiece);
+            s.appendChild(placed);
+
+            // Marca el slot como ocupado y evita que la pieza se pueda mover
+            s.classList.add("filled");
+            draggingPiece.draggable = false;
+            draggingPiece.style.cursor = "default";
+            checkCompletion();
+          } else {
+            s.animate(
+              [
+                { transform: "translateY(0)" },
+                { transform: "translateY(-8px)" },
+                { transform: "translateY(0)" },
+              ],
+              { duration: 200 }
+            );
+          }
+          draggingPiece = null;
+        });
+      });
+
+      /* Fallback */
+      (function touchFallback() {
+        let touchEl = null;
+        document.addEventListener(
+          "touchstart",
+          (e) => {
+            const t = e.target.closest(".piece");
+            if (t && t.draggable) touchEl = t;
+          },
+          { passive: true }
+        );
+        document.addEventListener(
+          "touchend",
+          (e) => {
+            const ts = e.changedTouches[0];
+            const elUnder = document.elementFromPoint(ts.clientX, ts.clientY);
+            const slot = elUnder && elUnder.closest(".slot");
+            if (slot && touchEl) {
+              if (slot.classList.contains("filled")) {
+                touchEl = null;
+                return;
+              }
+              if (
+                !slot.querySelector(".piece") &&
+                touchEl.dataset.id === slot.dataset.id
+              ) {
+                const placed = document.createElement("div");
+                placed.className = "placed";
+                placed.appendChild(touchEl);
+                slot.appendChild(placed);
+                slot.classList.add("filled");
+                touchEl.draggable = false;
+                touchEl.style.cursor = "default";
+
+                checkCompletion();
+              }
+            }
+            touchEl = null;
+          },
+          { passive: true }
+        );
+      })();
+
+      /* ---------- Funciones completo y reinicio ---------- */
+      function checkCompletion() {
+        const ok = slots.every((slot) => {
+          const child = slot.querySelector(".piece");
+          return child && child.dataset.id === slot.dataset.id;
+        });
+        if (ok) {
+          endGame(true);
+        }
+      }
+
+      function restartRound() {
+        clearTimeout(inactivityTimeout);
+        restartBtn.style.display = "none";
+        restartBtn.setAttribute("aria-hidden", "true");
+        restartContainer.style.pointerEvents = "none";
+        resetPuzzle(true);
+        startTimer();
+      }
+
+      /* Reinicio puzzle */
+      function resetPuzzle(keepVisible) {
+        slots.forEach((slot) => {
+          slot.classList.remove("filled");
+        });
+
+        // Devuelve las piezas a la fila y las hace arrastrables
+        slots.forEach((slot) => {
+          const placedPieces = slot.querySelectorAll(".placed .piece");
+          placedPieces.forEach((p) => {
+            p.draggable = true;
+            p.style.cursor = "grab";
+            piecesRow.appendChild(p);
+          });
+          const wrappers = slot.querySelectorAll(".placed");
+          wrappers.forEach((w) => w.remove());
+        });
+
+        // Check piezas
+        const allPieces = Array.from(document.querySelectorAll(".piece"));
+        allPieces.forEach((p) => {
+          p.draggable = true;
+          p.style.cursor = "grab";
+          if (p.parentElement !== piecesRow) piecesRow.appendChild(p);
+          p.style.display = "";
+        });
+
+        draggingPiece = null;
+        timeRemaining = totalTime;
+        timerBar.style.width = "100%";
+        timerText.textContent = timeRemaining;
+        if (!keepVisible) stopTimer();
+      }
+
+      /* ---------- Efecto confetti ---------- */
+      function spawnParabolicConfetti(count = 90) {
+        if (_confettiState && _confettiState.active)
+          count = Math.min(40, count);
+
+        const vw = Math.max(
+          document.documentElement.clientWidth || 0,
+          window.innerWidth || 0
+        );
+        const vh = Math.max(
+          document.documentElement.clientHeight || 0,
+          window.innerHeight || 0
+        );
+
+        const centerX = vw / 2;
+        const centerY = vh / 2 + 80;
+        const now = performance.now();
+        const particles = [];
+        const gravity = 1800;
+
+        const origins = [
+          { x: -30, y: vh + 30 },
+          { x: vw + 30, y: vh + 30 },
+        ];
+
+        for (let i = 0; i < count; i++) {
+          const origin = origins[Math.floor(Math.random() * origins.length)];
+          const x0 = origin.x + (Math.random() - 0.5) * 80;
+          const y0 = origin.y + (Math.random() - 0.5) * 40;
+          const targetSpread = Math.max(60, Math.min(220, vw * 0.12));
+          const tx = centerX + (Math.random() - 0.5) * targetSpread;
+          const ty = centerY + (Math.random() - 0.5) * 40;
+          const dx = tx - x0;
+          const dy = ty - y0;
+          const base = 0.75 + Math.random() * 0.8;
+          const distFactor = Math.min(
+            2.2,
+            Math.sqrt((dx * dx + dy * dy) / (vw * vw + vh * vh)) * 3.0
+          );
+          const t_f = Math.max(0.5, base * (1 + distFactor * 0.6));
+          const vx = dx / t_f;
+          const vy = (dy - 0.5 * gravity * t_f * t_f) / t_f;
+          const sizeW = 6 + Math.random() * 14;
+          const sizeH = 8 + Math.random() * 16;
+          const color = `hsl(${Math.floor(Math.random() * 360)} 85% 55%)`;
+          const rotSpeed = (Math.random() - 0.5) * 720;
+          const life = Math.max(700, t_f * 1000 + 800 + Math.random() * 600);
+
+          const el = document.createElement("div");
+          el.className = "confetti";
+          el.style.width = sizeW + "px";
+          el.style.height = sizeH + "px";
+          el.style.background = color;
+          el.style.left = "0px";
+          el.style.top = "0px";
+          el.style.opacity = "1";
+          el.style.transform = `translate(${x0}px, ${y0}px) rotate(0deg)`;
+          el.style.borderRadius = Math.random() > 0.5 ? "1px" : "50%";
+          document.body.appendChild(el);
+
+          particles.push({
+            el,
+            x: x0,
+            y: y0,
+            vx,
+            vy,
+            rotSpeed,
+            start: now,
+            life,
+          });
+        }
+
+        _confettiState = { active: true, particles };
+        let last = now;
+        function step(ts) {
+          const dt = Math.min(0.03, (ts - last) / 1000);
+          last = ts;
+          for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            const t = ts - p.start;
+            if (t >= p.life) {
+              if (p.el.parentElement) p.el.remove();
+              particles.splice(i, 1);
+              continue;
+            }
+            p.vy += gravity * dt;
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            const rotation = (p.rotSpeed * (t / 1000)) % 360;
+            p.el.style.transform = `translate(${p.x}px, ${p.y}px) rotate(${rotation}deg)`;
+            const alpha = Math.max(0, 1 - t / p.life);
+            p.el.style.opacity = alpha;
+          }
+          if (particles.length > 0) requestAnimationFrame(step);
+          else {
+            _confettiState.active = false;
+            _confettiState = null;
+          }
+        }
+        requestAnimationFrame(step);
+      }
+
+      /* ---------- Fin Juego ---------- */
+      function endGame(success) {
+        stopTimer();
+        if (success) {
+          freezeTimerBar();
+          try {
+            spawnParabolicConfetti(90);
+          } catch (e) {
+            console.warn("Confetti error:", e);
+          }
+        } else {
+          disablePieces();
+        }
+
+        restartBtn.style.display = "inline-block";
+        restartBtn.setAttribute("aria-hidden", "false");
+        restartContainer.style.pointerEvents = "auto";
+
+        clearTimeout(inactivityTimeout);
+        inactivityTimeout = setTimeout(() => {
+          resetPuzzle(false);
+          showStart();
+        }, 60000);
+      }
+      /* Desactivar piezas */
+      function disablePieces() {
+        const pieces = document.querySelectorAll(".piece");
+        pieces.forEach((piece) => {
+          // Desactiva el arrastre y aplica clase para estilo visual
+          piece.setAttribute("draggable", "false");
+          piece.draggable = false;
+          piece.classList.add("disabled");
+          piece.style.cursor = "not-allowed";
+        });
+        // Evita soltar en los slots
+        slots.forEach((s) => {
+          s.style.pointerEvents = "none";
+        });
+      }
+
+      /* ---------- Inicio juego ---------- */
+      startButton.addEventListener("click", () => {
+        resetPuzzle(true);
+        showGame();
+        startTimer();
+      });
+      restartBtn.addEventListener("click", restartRound);
+
+      /* show start on load */
+      showStart();
+    </script>
+  </body>
 </html>
