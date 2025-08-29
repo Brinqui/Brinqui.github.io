@@ -59,6 +59,26 @@
         background: rgba(0, 0, 0, 0.28);
         z-index: 999;
       }
+
+      /* Nuevo contenedor que agrupa imagen + botón */
+      .start-content {
+        display: flex;
+        flex-direction: column; /* apilar verticalmente: imagen encima del botón */
+        gap: 12px;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        border-radius: 14px;
+      }
+
+      #start-header-img {
+        width: 1000px;
+        height: auto;
+        border-radius: 10px;
+        display: block;
+        transform: translateY(0);
+      }
+
       #start-button {
         padding: 14px 28px;
         border-radius: 10px;
@@ -92,12 +112,12 @@
 
       /* Contenedor de los slots */
       .whale-wrap {
+        background-image: url(https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/Ballena_completa.png);
         width: 100%;
-        max-width: 1100px;
         aspect-ratio: 858/458;
         position: relative;
         margin: 0 auto;
-        background-size: contain;
+        background-size: 100%;
         background-repeat: no-repeat;
         background-position: center;
         transform: scaleX(-1);
@@ -111,7 +131,7 @@
         border: none;
         background: transparent;
         pointer-events: auto;
-        overflow: visible;
+        overflow: auto;
         transition: transform 0.12s ease;
       }
 
@@ -197,6 +217,8 @@
         transition: transform 0.18s ease;
         pointer-events: none;
         transform: scaleX(-1);
+        touch-action: none;
+        -webkit-user-drag: none;
       }
 
       .slot .piece {
@@ -214,88 +236,114 @@
 
       /* --- Ajustes finos por pieza (nudges) --- */
       .slot[data-id="1"] .piece img {
-        transform: translate(-6px, 4px);
+        transform: scale(0.94) translate(-6px, 4px);
       } /* Cola */
       .slot[data-id="2"] .piece img {
-        transform: scale(0.7) translate(-2px, -6px);
+        transform: scale(0.97) translate(-2px, -6px);
       } /* Costillas */
       .slot[data-id="3"] .piece img {
-        transform: scale(0.5) translate(2px, -6px);
+        transform: scale(0.97) translate(2px, -6px);
       } /* Cuello */
       .slot[data-id="4"] .piece img {
-        transform: scale(0.9) translate(6px, -8px);
+        transform: scale(0.97) translate(6px, -8px);
       } /* Cabeza */
       .slot[data-id="5"] .piece img {
-        transform: translate(0px, 12px);
+        transform: scale(0.97) translate(0px, 12px);
       } /* Aletas */
 
-      /* timer */
+      /* timer: ahora dividido en contador y puntuación */
       #timer-container {
         width: 90%;
         max-width: 720px;
-        height: 36px;
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 8px;
+        height: 200px;
+        border-radius: 10px;
         position: relative;
         overflow: hidden;
         margin: 8px auto;
         transform: translateY(30px);
-        box-shadow: inset 0 -3px 8px rgba(0, 0, 0, 0.18);
-      }
-      #timer-bar {
-        height: 120%;
-        width: 100%;
-        background: linear-gradient(
-            90deg,
-            rgba(0, 0, 0, 0.2),
-            rgba(0, 0, 0, 0.28)
-          ),
-          linear-gradient(90deg, var(--teal-1), var(--teal-2));
-        border-radius: 14px;
-        transition: width 1s linear, background 0.2s ease, filter 0.12s ease;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28) inset;
-        transform: translateY(-10%);
-      }
-      #timer-text {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        font-weight: 700;
-        font-size: 0.9rem;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 14px;
       }
 
-      #restart-container {
-        width: 100%;
+      .timer-box {
+        background-image: url(https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/cartel_PNG.png);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 100%;
+        color: black;
         display: flex;
+        flex-direction: column;
+        align-items: center;
         justify-content: center;
-        margin-top: 12px;
+        min-width: 120px;
+        height: 90%;
       }
-      #restart-btn {
+      .timer-label {
+        font-weight: 500;
+        font-size: 1rem;
+        opacity: 0.8;
+        margin-bottom: 4px;
+      }
+      #countdown,
+      #score {
+        font-weight: 500;
+        font-size: 1rem;
+        padding: 12px 24px;
+        border-radius: 8px;
+        min-width: 60px;
+        text-align: center;
+      }
+
+      /* Mensaje final */
+      .end-message {
+        background-image: url(https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/cartel_l_PNG.png);
+        justify-content: center;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: 90%;
+        position: fixed;
+        left: 50%;
+        top: 30%;
+        width: 500px;
+        height: 400px;
+        transform: translateX(-50%);
+        color: black;
+        z-index: 10000;
+        font-weight: 800;
+        font-size: 1.05rem;
+        text-align: center;
         display: none;
+        gap: 10px;
+        align-items: center;
+      }
+      .end-message.show {
+        display: flex;
+      }
+      .end-restart-btn {
         border: 0;
-        padding: 10px 18px;
+        padding: 10px 14px;
         background: linear-gradient(
             90deg,
-            rgba(0, 0, 0, 0.2),
-            rgba(0, 0, 0, 0.28)
+            rgba(0, 0, 0, 0.16),
+            rgba(0, 0, 0, 0.24)
           ),
-          linear-gradient(90deg, var(--teal-1), var(--teal-2));
-        border-radius: 14px;
+          linear-gradient(90deg, var(--coral-1), var(--coral-2));
         color: var(--btn-text);
+        border-radius: 10px;
         cursor: pointer;
-        font-size: 1.05rem;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28) inset;
-        transition: transform 0.14s ease, box-shadow 0.14s ease,
-          filter 0.12s ease;
         font-weight: 700;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28) inset;
+        display: block;
+        margin-top: 8px;
       }
-      #restart-btn:hover,
-      #restart-btn:focus {
+      .end-message .end-restart-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.42),
-          0 0 0 8px rgba(255, 122, 89, 0.08) inset;
-        filter: brightness(1.02);
+      }
+      #end-message-text {
+        display: block;
       }
 
       .confetti {
@@ -314,6 +362,13 @@
         .slot {
           width: 16%;
         }
+        .start-content {
+          gap: 12px;
+        }
+        #start-header-img {
+          width: 220px;
+          max-width: 45vw;
+        }
       }
       @media (max-width: 640px) {
         .piece {
@@ -323,44 +378,66 @@
         .slot {
           width: 20%;
         }
+        #timer-container {
+          gap: 8px;
+          padding: 8px;
+        }
+        /* apilar imagen + botón verticalmente en pantallas pequeñas */
+        .start-content {
+          flex-direction: column;
+        }
+        #start-header-img {
+          width: 70vw;
+          max-width: 340px;
+        }
       }
     </style>
   </head>
   <body>
     <div class="app">
       <div id="game-area" aria-hidden="true">
-        <div id="timer-container">
-          <div id="timer-bar"></div>
-          <div id="timer-text">30</div>
+        <div id="timer-container" role="status" aria-live="polite">
+          <div class="timer-box">
+            <div class="timer-label">Tiempo</div>
+            <div id="countdown">30</div>
+          </div>
+          <div class="timer-box">
+            <div class="timer-label">Puntos</div>
+            <div id="score">1000</div>
+          </div>
         </div>
 
         <!-- Contenedor de los slots -->
         <div id="whale" class="whale-wrap">
-          <!-- Ajusté left/top/--w/--ar — estos valores están calibrados para tu imagen -->
+          <!-- Cola -->
           <div
             class="slot"
             data-id="1"
-            style="left: 7%; top: 31%; --w: 45%; --ar: 4.5 / 1"
+            style="left: -13.1%; top: 37.05%; --w: 19%; --ar: 1 / 1"
           ></div>
+          <!-- Costado -->
           <div
             class="slot"
             data-id="2"
-            style="left: 42%; top: 24%; --w: 26%; --ar: 1.1 / 1"
+            style="left: 2.38%; top: -11.2%; --w: 51%; --ar: 1 / 1"
           ></div>
+          <!-- Cuello -->
           <div
             class="slot"
             data-id="3"
-            style="left: 60.5%; top: 35%; --w: 11%; --ar: 1.2 / 1"
+            style="left: 49.15%; top: 13.1%; --w: 30%; --ar: 1 / 1"
           ></div>
+          <!-- Cabeza -->
           <div
             class="slot"
             data-id="4"
-            style="left: 66%; top: 30%; --w: 26%; --ar: 1.2 / 1"
+            style="left: 70%; top: 17.2%; --w: 30%; --ar: 1 / 1"
           ></div>
+          <!-- Aleta -->
           <div
             class="slot"
             data-id="5"
-            style="left: 46%; top: 39%; --w: 20%; --ar: 1.25 / 1"
+            style="left: 43.7%; top: 30%; --w: 30%; --ar: 1 / 1"
           ></div>
         </div>
 
@@ -368,43 +445,62 @@
         <div class="pieces-row" id="pieces-row" aria-label="Piezas">
           <div class="piece" draggable="true" data-id="1" title="Cola">
             <img
-              src="https://github.com/Brinqui/Brinqui.github.io/blob/main/Ballena_cola.png?raw=true"
+              src="https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/Ballena_cola_piel.png"
               alt="Cola"
             />
           </div>
           <div class="piece" draggable="true" data-id="2" title="Costillas">
             <img
-              src="https://github.com/Brinqui/Brinqui.github.io/blob/main/Ballena_costillas.png?raw=true"
+              src="https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/Ballena_cuerpo_2_piel.png"
               alt="Costillas"
             />
           </div>
           <div class="piece" draggable="true" data-id="3" title="Cuello">
             <img
-              src="https://github.com/Brinqui/Brinqui.github.io/blob/main/Ballena_cuello.png?raw=true"
+              src="https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/Ballena_cuerpo_1_piel.png"
               alt="Cuello"
             />
           </div>
           <div class="piece" draggable="true" data-id="4" title="Cabeza">
             <img
-              src="https://github.com/Brinqui/Brinqui.github.io/blob/main/Ballena_craneo.png?raw=true"
+              src="https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/Ballena_craneo_piel.png"
               alt="Cabeza"
             />
           </div>
           <div class="piece" draggable="true" data-id="5" title="Aletas">
             <img
-              src="https://github.com/Brinqui/Brinqui.github.io/blob/main/Ballena_aleta.png?raw=true"
+              src="https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/Ballena_aleta_piel.png"
               alt="Aletas"
             />
           </div>
         </div>
-
-        <div id="restart-container">
-          <button id="restart-btn" aria-hidden="true">Volver a empezar</button>
-        </div>
       </div>
 
       <div id="start-overlay">
-        <button id="start-button">Comenzar</button>
+        <div class="start-content" role="dialog" aria-label="Inicio del juego">
+          <!-- Imagen de cabecera (reemplaza src si quieres otra) -->
+          <img
+            id="start-header-img"
+            src="https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/Titulo.png"
+            alt="Cabecera del juego - Puzzle Ballena"
+          />
+
+          <!-- Botón comenzar -->
+          <button id="start-button">Comenzar</button>
+        </div>
+      </div>
+
+      <!-- Mensaje final -->
+      <div
+        id="end-message"
+        class="end-message"
+        role="alert"
+        aria-live="assertive"
+      >
+        <span id="end-message-text"></span>
+        <button id="end-restart-btn" class="end-restart-btn" aria-hidden="true">
+          Volver a jugar
+        </button>
       </div>
     </div>
 
@@ -413,79 +509,117 @@
       /* ---------- DOM ---------- */
       const startOverlay = document.getElementById("start-overlay");
       const startButton = document.getElementById("start-button");
+      const startHeaderImg = document.getElementById("start-header-img");
       const gameArea = document.getElementById("game-area");
       const slots = Array.from(document.querySelectorAll(".slot"));
       const piecesRow = document.getElementById("pieces-row");
-      const restartBtn = document.getElementById("restart-btn");
-      const restartContainer = document.getElementById("restart-container");
-      const timerText = document.getElementById("timer-text");
-      const timerBar = document.getElementById("timer-bar");
+
+      const countdownEl = document.getElementById("countdown");
+      const scoreEl = document.getElementById("score");
+      const endMessage = document.getElementById("end-message");
+      const endMessageText = document.getElementById("end-message-text");
+      const endRestartBtn = document.getElementById("end-restart-btn");
+
+      /* eliminar barra legacy si queda en el DOM */
+      (function removeLegacyTimerBar() {
+        try {
+          const legacy = document.getElementById("timer-bar");
+          if (legacy && legacy.parentElement) legacy.remove();
+        } catch (e) {
+          /* no hacer nada */
+        }
+      })();
 
       /* State Confetti */
       let _confettiState = null;
 
-      /* ---------- Contador ---------- */
-      let totalTime = 30;
+      /* ---------- Contador & Puntuación ---------- */
+      const totalTime = 30;
       let timeRemaining = totalTime;
+      const initialScore = 1000;
+      const scoreInterval = 2; // cada cuantos segundos baja la puntuación
+      let score = initialScore;
+      let lastScoreUpdateElapsed = -1;
+
       let timerInterval = null;
       let inactivityTimeout = null;
 
       function startTimer() {
         clearInterval(timerInterval);
         timeRemaining = totalTime;
-        timerBar.style.width = "100%";
-        timerText.textContent = timeRemaining;
-        void timerBar.offsetWidth;
-        timerBar.style.transition = `width ${totalTime}s linear`;
-        requestAnimationFrame(() => {
-          timerBar.style.width = "0%";
-        });
+        score = initialScore;
+        lastScoreUpdateElapsed = -1;
+        countdownEl.textContent = timeRemaining;
+        scoreEl.textContent = score;
+
         timerInterval = setInterval(() => {
           timeRemaining--;
-          timerText.textContent = timeRemaining;
+          countdownEl.textContent = timeRemaining;
+
+          const elapsed = totalTime - timeRemaining;
+          if (
+            elapsed > 0 &&
+            elapsed % scoreInterval === 0 &&
+            elapsed !== lastScoreUpdateElapsed
+          ) {
+            // calcular decremento proporcional (suave)
+            const steps = Math.max(1, Math.floor(totalTime / scoreInterval));
+            const dec = Math.ceil(initialScore / steps);
+            score = Math.max(0, score - dec);
+            scoreEl.textContent = score;
+            lastScoreUpdateElapsed = elapsed;
+          }
+
           if (timeRemaining <= 0) {
             clearInterval(timerInterval);
             endGame(false);
           }
         }, 1000);
       }
+
       function stopTimer() {
         clearInterval(timerInterval);
       }
 
-      function freezeTimerBar() {
-        try {
-          const containerWidth = timerBar.parentElement.clientWidth || 1;
-          const barWidthPx = parseFloat(getComputedStyle(timerBar).width) || 0;
-          const pct = Math.max(
-            0,
-            Math.min(100, (barWidthPx / containerWidth) * 100)
-          );
-          timerBar.style.transition = "none";
-          timerBar.style.width = pct + "%";
-          timerBar.classList.remove("urgent");
-        } catch (err) {
-          console.warn("freezeTimerBar error:", err);
-          timerBar.style.transition = "none";
+      /* Mostrar/ocultar mensaje final */
+      function showEndMessage(text, success) {
+        endMessageText.textContent = text;
+        endMessage.classList.remove("success", "fail");
+        endMessage.classList.add(success ? "success" : "fail", "show");
+        // mostrar boton de reinicio dentro del mensaje para evitar scroll
+        if (endRestartBtn) {
+          endRestartBtn.style.display = "inline-block";
+          endRestartBtn.setAttribute("aria-hidden", "false");
         }
+        // focus for accessibility
+        endMessage.setAttribute("tabindex", "-1");
+        endMessage.focus();
+      }
+      function hideEndMessage() {
+        endMessage.classList.remove("show", "success", "fail");
+        endMessageText.textContent = "";
+        endMessage.removeAttribute("tabindex");
       }
 
       /* ---------- Show/hide ---------- */
       function showGame() {
         startOverlay.style.display = "none";
+        // por accesibilidad también ocultamos la imagen del overlay
+        if (startHeaderImg) startHeaderImg.setAttribute("aria-hidden", "true");
         gameArea.style.display = "flex";
         gameArea.style.flexDirection = "column";
         gameArea.style.opacity = "1";
         gameArea.style.pointerEvents = "auto";
         gameArea.setAttribute("aria-hidden", "false");
-        restartBtn.style.display = "none";
-        restartBtn.setAttribute("aria-hidden", "true");
-        restartContainer.style.pointerEvents = "none";
       }
       function showStart() {
         gameArea.style.display = "none";
         startOverlay.style.display = "flex";
+        // restaurar visibilidad/atributos accesibles de la imagen
+        if (startHeaderImg) startHeaderImg.setAttribute("aria-hidden", "false");
         gameArea.setAttribute("aria-hidden", "true");
+        // dar foco al botón para que el usuario pueda usar teclado rápido
+        setTimeout(() => startButton.focus(), 150);
       }
 
       /* ---------- Drag & Drop ---------- */
@@ -594,47 +728,118 @@
         });
       });
 
-      /* Fallback */
-      (function touchFallback() {
-        let touchEl = null;
-        document.addEventListener(
-          "touchstart",
-          (e) => {
-            const t = e.target.closest(".piece");
-            if (t && t.draggable) touchEl = t;
-          },
-          { passive: true }
-        );
-        document.addEventListener(
-          "touchend",
-          (e) => {
-            const ts = e.changedTouches[0];
-            const elUnder = document.elementFromPoint(ts.clientX, ts.clientY);
-            const slot = elUnder && elUnder.closest(".slot");
-            if (slot && touchEl) {
-              if (slot.classList.contains("filled")) {
-                touchEl = null;
-                return;
-              }
-              if (
-                !slot.querySelector(".piece") &&
-                touchEl.dataset.id === slot.dataset.id
-              ) {
-                const placed = document.createElement("div");
-                placed.className = "placed";
-                placed.appendChild(touchEl);
-                slot.appendChild(placed);
-                slot.classList.add("filled");
-                touchEl.draggable = false;
-                touchEl.style.cursor = "default";
+      /* Mejora: Drag para touch/pen mediante Pointer Events */
+      (function touchPointerFallback() {
+        let active = null;
+        let ghost = null;
+        let activePointerId = null;
 
-                checkCompletion();
-              }
-            }
-            touchEl = null;
-          },
-          { passive: true }
-        );
+        function createGhost(sourceEl) {
+          const img =
+            sourceEl.querySelector("img")?.cloneNode(true) ||
+            sourceEl.cloneNode(true);
+          img.style.position = "fixed";
+          img.style.left = "0";
+          img.style.top = "0";
+          img.style.width = Math.max(64, sourceEl.clientWidth) + "px";
+          img.style.height = Math.max(64, sourceEl.clientHeight) + "px";
+          img.style.pointerEvents = "none";
+          img.style.zIndex = 99999;
+          document.body.appendChild(img);
+          return img;
+        }
+
+        function moveGhost(g, x, y) {
+          if (!g) return;
+          const w = g.clientWidth / 2;
+          const h = g.clientHeight / 2;
+          g.style.transform = `translate(${x - w}px, ${y - h}px)`;
+        }
+
+        function onPointerDown(e) {
+          // Solo para touch/pen; deja mouse al drag nativo
+          if (e.pointerType === "mouse") return;
+          const t = e.target.closest(".piece");
+          if (!t || !t.draggable) return;
+          e.preventDefault();
+
+          active = t;
+          activePointerId = e.pointerId;
+          active.setPointerCapture?.(activePointerId);
+
+          // crea ghost visual
+          ghost = createGhost(active);
+          moveGhost(ghost, e.clientX, e.clientY);
+
+          // evitar scroll accidental mientras arrastras
+          document.body.style.touchAction = "none";
+
+          document.addEventListener("pointermove", onPointerMove);
+          document.addEventListener("pointerup", onPointerUp);
+          document.addEventListener("pointercancel", onPointerUp);
+        }
+
+        function onPointerMove(e) {
+          if (!active || e.pointerId !== activePointerId) return;
+          moveGhost(ghost, e.clientX, e.clientY);
+
+          const elUnder = document.elementFromPoint(e.clientX, e.clientY);
+          const slotUnder = elUnder && elUnder.closest(".slot");
+          slots.forEach((s) => s.classList.toggle("dragover", s === slotUnder));
+        }
+
+        function onPointerUp(e) {
+          if (!active || e.pointerId !== activePointerId) return;
+
+          const elUnder = document.elementFromPoint(e.clientX, e.clientY);
+          const slot = elUnder && elUnder.closest(".slot");
+
+          if (
+            slot &&
+            !slot.classList.contains("filled") &&
+            !slot.querySelector(".piece") &&
+            active.dataset.id === slot.dataset.id
+          ) {
+            const placed = document.createElement("div");
+            placed.className = "placed";
+            placed.appendChild(active);
+            slot.appendChild(placed);
+            slot.classList.add("filled");
+            active.draggable = false;
+            active.style.cursor = "default";
+            checkCompletion();
+          } else if (slot) {
+            // feedback leve si la pieza no encaja
+            slot.animate(
+              [
+                { transform: "translateY(0)" },
+                { transform: "translateY(-8px)" },
+                { transform: "translateY(0)" },
+              ],
+              { duration: 200 }
+            );
+          }
+
+          // limpieza
+          slots.forEach((s) => s.classList.remove("dragover"));
+          if (ghost && ghost.parentElement) ghost.remove();
+          ghost = null;
+
+          try {
+            active.releasePointerCapture?.(activePointerId);
+          } catch (_) {}
+          active = null;
+          activePointerId = null;
+
+          document.body.style.touchAction = ""; // restaura
+          document.removeEventListener("pointermove", onPointerMove);
+          document.removeEventListener("pointerup", onPointerUp);
+          document.removeEventListener("pointercancel", onPointerUp);
+        }
+
+        document.addEventListener("pointerdown", onPointerDown, {
+          passive: false,
+        });
       })();
 
       /* ---------- Funciones completo y reinicio ---------- */
@@ -650,17 +855,18 @@
 
       function restartRound() {
         clearTimeout(inactivityTimeout);
-        restartBtn.style.display = "none";
-        restartBtn.setAttribute("aria-hidden", "true");
-        restartContainer.style.pointerEvents = "none";
+
+        hideEndMessage();
         resetPuzzle(true);
         startTimer();
       }
 
       /* Reinicio puzzle */
       function resetPuzzle(keepVisible) {
+        // Limpia estado filled y vuelve a permitir pointer events en los slots
         slots.forEach((slot) => {
           slot.classList.remove("filled");
+          slot.style.pointerEvents = "";
         });
 
         // Devuelve las piezas a la fila y las hace arrastrables
@@ -669,28 +875,30 @@
           placedPieces.forEach((p) => {
             p.draggable = true;
             p.style.cursor = "grab";
+            p.classList.remove("disabled");
             piecesRow.appendChild(p);
           });
           const wrappers = slot.querySelectorAll(".placed");
           wrappers.forEach((w) => w.remove());
         });
 
-        // Check piezas
         const allPieces = Array.from(document.querySelectorAll(".piece"));
         allPieces.forEach((p) => {
           p.draggable = true;
           p.style.cursor = "grab";
+          p.classList.remove("disabled");
           if (p.parentElement !== piecesRow) piecesRow.appendChild(p);
           p.style.display = "";
         });
 
         draggingPiece = null;
         timeRemaining = totalTime;
-        timerBar.style.width = "100%";
-        timerText.textContent = timeRemaining;
+        score = initialScore;
+        countdownEl.textContent = timeRemaining;
+        scoreEl.textContent = score;
+        hideEndMessage();
         if (!keepVisible) stopTimer();
       }
-
       /* ---------- Efecto confetti ---------- */
       function spawnParabolicConfetti(count = 90) {
         if (_confettiState && _confettiState.active)
@@ -762,7 +970,6 @@
             life,
           });
         }
-
         _confettiState = { active: true, particles };
         let last = now;
         function step(ts) {
@@ -792,25 +999,20 @@
         }
         requestAnimationFrame(step);
       }
-
       /* ---------- Fin Juego ---------- */
       function endGame(success) {
         stopTimer();
         if (success) {
-          freezeTimerBar();
           try {
             spawnParabolicConfetti(90);
           } catch (e) {
             console.warn("Confetti error:", e);
           }
+          showEndMessage("¡Buen trabajo!", true);
         } else {
           disablePieces();
+          showEndMessage("Has perdido.", false);
         }
-
-        restartBtn.style.display = "inline-block";
-        restartBtn.setAttribute("aria-hidden", "false");
-        restartContainer.style.pointerEvents = "auto";
-
         clearTimeout(inactivityTimeout);
         inactivityTimeout = setTimeout(() => {
           resetPuzzle(false);
@@ -832,16 +1034,16 @@
           s.style.pointerEvents = "none";
         });
       }
-
       /* ---------- Inicio juego ---------- */
       startButton.addEventListener("click", () => {
         resetPuzzle(true);
         showGame();
         startTimer();
       });
-      restartBtn.addEventListener("click", restartRound);
-
-      /* show start on load */
+      // boton dentro del mensaje final
+      if (endRestartBtn) {
+        endRestartBtn.addEventListener("click", restartRound);
+      }
       showStart();
     </script>
   </body>
