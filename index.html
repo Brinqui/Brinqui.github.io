@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Puzzle Ballena</title>
+    <style>
+      @font-face {
+        font-family: "CustomFont";
+        src: url("https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/assets/fonts/River_Adventurer.ttf") format("truetype");
+        font-style: normal;
+        font-weight: normal;
+      }
+      :root {
+        --teal-1: #00b8a9;
+        --teal-2: #4ee5d9;
+        --coral-1: #ff7a59;
+        --coral-2: #ff5a3d;
+        --timer-from: #00a0ff;
+        --timer-to: #003f8a;
+        --btn-text: #ffffff;
+        --btn-shadow: rgba(2, 12, 19, 0.36);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        font-family: "CustomFont", sans-serif;
+        background-image: url("https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/assets/images/Ballena_fondo_2.png");
+        background-position: center center;
+        background-size: cover;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+      .app {
+        width: 100%;
+        max-width: 1200px;
+      }
+      #start-overlay {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.28);
+        z-index: 999;
+      }
+      .start-content {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        border-radius: 14px;
+        background: transparent;
+      }
+      #start-header-img {
+        width: 1000px;
+        height: auto;
+        border-radius: 10px;
+        display: block;
+      }
+      #start-button {
+        color: white;
+        font-family: "CustomFont";
+        padding: 14px 28px;
+        border-radius: 10px;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        font-size: 2.5rem;
+        font-weight: 500;
+      }
+
+      #game-area {
+        display: none;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        width: 100%;
+      }
+
+      .whale-wrap {
+        background-image: url("https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/assets/images/Ballena2F.png");
+        width: 100%;
+        aspect-ratio: 858/458;
+        position: relative;
+        margin: 0 auto;
+        background-size: 100%;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+
+      .slot {
+        position: absolute;
+        width: clamp(14px, 2.2vw, 22px);
+        height: clamp(14px, 2.2vw, 22px);
+        border: none;
+        background: transparent;
+        pointer-events: auto;
+        overflow: visible;
+      }
+
+      .slot::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) scale(1);
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.95),
+          rgba(220, 220, 220, 0.9)
+        );
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25),
+          0 0 0 6px rgba(255, 255, 255, 0.06) inset;
+        transition: transform 0.12s ease, box-shadow 0.12s ease,
+          opacity 0.12s ease;
+        z-index: 1;
+      }
+
+      .slot:not(.filled):hover::before,
+      .slot.dragover::before {
+        transform: translate(-50%, -50%) scale(1.5);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3),
+          0 0 0 10px rgba(255, 255, 255, 0.06);
+      }
+
+      .slot.filled::before {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+      }
+
+      .slot.filled {
+        pointer-events: none;
+        border: none;
+        background: transparent;
+      }
+
+      .slot .placed {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 2;
+        width: auto;
+        height: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .pieces-row {
+        width: 100%;
+        max-width: 980px;
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 14px;
+        transform: translateY(-50px);
+      }
+
+      .piece {
+        width: 120px;
+        height: 120px;
+        border-radius: 12px;
+        background: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: grab;
+        user-select: none;
+        border: 2px solid rgba(255, 255, 255, 0.06);
+        overflow: hidden;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      }
+      .piece img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        transition: transform 0.18s ease;
+        pointer-events: none;
+        touch-action: none;
+        -webkit-user-drag: none;
+      }
+
+      .slot .piece {
+        width: 330px;
+        height: 330px;
+        background: transparent;
+        border: none;
+        cursor: default;
+        box-shadow: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .slot .piece img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .slot[data-id="1"] .piece img {
+        transform:scale(0.95) translate(-6px, 4px);
+      }
+      .slot[data-id="2"] .piece img {
+        transform: scale(0.669) translate(-2px, -6px);
+      }
+      .slot[data-id="1"] .piece {
+        width: 500px;
+        height: 500px;
+      }
+      .slot[data-id="3"] .piece img {
+        transform: scale(0.94) translate(2px, -6px);
+      }
+      .slot[data-id="4"] .piece img {
+        transform: scale(0.97) translate(6px, -8px);
+      }
+      .slot[data-id="5"] .piece img {
+        transform: scale(0.97) translate(0px, 12px);
+      }
+
+      #timer-container {
+        width: 90%;
+        max-width: 960px;
+        height: 180px;
+        border-radius: 10px;
+        position: relative;
+        overflow: visible;
+        margin: 8px auto;
+        transform: translateY(30px);
+        display: block;
+        padding: 8px 14px;
+      }
+
+      .timer-track {
+        position: absolute;
+        background: rgba(0, 0, 0, 0.12);
+        box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+        z-index: 1;
+        transition: height 0.18s ease;
+      }
+      .timer-bar-fill {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, var(--timer-from), var(--timer-to));
+        transition: width 0.12s linear;
+        box-shadow: inset 0 -6px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .score-area {
+        position: absolute;
+        right: 75px;
+        top: 28%;
+        width: 140px;
+        height: 110px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 800;
+        font-size: 3rem;
+        text-align: center;
+        z-index: 4;
+      }
+      .timer-overlay {
+        position: absolute;
+        inset: 0;
+        background-image: url("https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/assets/images/Tabla2.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 100% 100%;
+        pointer-events: none;
+        z-index: 3;
+      }
+      #countdown {
+        position: absolute;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+      }
+
+      .end-message {
+        justify-content: center;
+        background-size: 90%;
+        position: fixed;
+        left: 50%;
+        top: 55%;
+        width: 400px;
+        height: 400px;
+        transform: translateX(-50%);
+        color: black;
+        z-index: 10000;
+        font-weight: 500;
+        font-size: 2.5rem;
+        text-align: center;
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+      }
+      .end-message.show {
+        display: flex;
+      }
+      .end-restart-btn {
+        font-family: "CustomFont";
+        font-size: 2.5rem;
+        border: 0;
+        padding: 10px 14px;
+        background: transparent;
+        color: var(--btn-text);
+        cursor: pointer;
+        font-weight: 500;
+        display: block;
+        margin-top: 8px;
+      }
+      .end-restart-btn:hover {
+        transform: translateY(-2px);
+      }
+      #end-message-text {
+        display: block;
+      }
+
+      .confetti {
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        will-change: transform, opacity;
+        border-radius: 2px;
+      }
+
+      .is-fullscreen .app {
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+      }
+      .is-fullscreen #timer-container {
+        transform: translateY(0);
+        max-width: 1200px;
+      }
+      .is-fullscreen .whale-wrap {
+        width: min(1100px, 92vw);
+        aspect-ratio: 858/458;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div id="game-area" aria-hidden="true">
+        <div
+          id="timer-container"
+          role="region"
+          aria-label="Barra de tiempo y puntuación"
+        >
+          <div
+            class="timer-track"
+            id="timer-track"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="30"
+            aria-valuenow="30"
+            aria-label="Tiempo restante"
+          >
+            <div class="timer-bar-fill" id="timer-bar-fill"></div>
+          </div>
+
+          <div id="countdown">30</div>
+
+          <div class="score-area" id="score-area" aria-hidden="false">
+            <div id="score">1000</div>
+          </div>
+
+          <div class="timer-overlay" aria-hidden="true"></div>
+        </div>
+
+        <div id="whale" class="whale-wrap">
+          <div
+            class="slot"
+            data-id="1"
+            style="left: 92.5%; top: 44%; --w: 17%; --ar: 1 / 1"
+          ></div>
+          <div
+            class="slot"
+            data-id="2"
+            style="left: 60.6%; top: 33.6%; --w: 45%; --ar: 1 / 1"
+          ></div>
+          <div
+            class="slot"
+            data-id="3"
+            style="left: 37.9%; top: 38.9%; --w: 29%; --ar: 1 / 1"
+          ></div>
+          <div
+            class="slot"
+            data-id="4"
+            style="left: 13%; top: 43.2%; --w: 30%; --ar: 1 / 1"
+          ></div>
+          <div
+            class="slot"
+            data-id="5"
+            style="left: 40.7%; top: 57%; --w: 30%; --ar: 1 / 1"
+          ></div>
+        </div>
+
+        <div class="pieces-row" id="pieces-row" aria-label="Piezas">
+          <div class="piece" draggable="true" data-id="1" title="Cola">
+            <img
+              src="https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/assets/images/Ballena2_cola_1.png"
+              alt="Cola"
+            />
+          </div>
+          <div class="piece" draggable="true" data-id="2" title="Lomo">
+            <img
+              src="https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/assets/images/Ballena2_cuerpo2_1.png"
+              alt="Lomo"
+            />
+          </div>
+          <div class="piece" draggable="true" data-id="3" title="Costillas">
+            <img
+              src="https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/assets/images/Ballena2_cuerpo1.png"
+              alt="Costillas"
+            />
+          </div>
+          <div class="piece" draggable="true" data-id="4" title="Cabeza">
+            <img
+              src="https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/assets/images/Ballena2_cabeza.png"
+              alt="Cabeza"
+            />
+          </div>
+          <div class="piece" draggable="true" data-id="5" title="Aletas">
+            <img
+              src="https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/assets/images/Ballena2_aleta.png"
+              alt="Aleta"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div id="start-overlay">
+        <div class="start-content" role="dialog" aria-label="Inicio del juego">
+          <img
+            id="start-header-img"
+            src="https://raw.githubusercontent.com/Brinqui/Brinqui.github.io/refs/heads/main/assets/images/Titulo2.png"
+            alt="Cabecera del juego - Puzzle Ballena"
+          />
+          <button id="start-button">Comenzar</button>
+        </div>
+      </div>
+
+      <div
+        id="end-message"
+        class="end-message"
+        role="alert"
+        aria-live="assertive"
+      >
+        <span id="end-message-text"></span>
+        <button id="end-restart-btn" class="end-restart-btn" aria-hidden="true">
+          Volver a jugar
+        </button>
+      </div>
+    </div>
+
+    <script>
+      /* ---------- DOM ---------- */
+      const startOverlay = document.getElementById("start-overlay");
+      const startButton = document.getElementById("start-button");
+      const startHeaderImg = document.getElementById("start-header-img");
+      const gameArea = document.getElementById("game-area");
+      const slots = Array.from(document.querySelectorAll(".slot"));
+      const piecesRow = document.getElementById("pieces-row");
+
+      const countdownEl = document.getElementById("countdown");
+      const scoreEl = document.getElementById("score");
+      const timerContainer = document.getElementById("timer-container");
+      const timerTrack = document.getElementById("timer-track");
+      const timerBarFill = document.getElementById("timer-bar-fill");
+      const scoreArea = document.getElementById("score-area");
+      const endMessage = document.getElementById("end-message");
+      const endMessageText = document.getElementById("end-message-text");
+      const endRestartBtn = document.getElementById("end-restart-btn");
+
+      (function removeLegacyTimerBar() {
+        try {
+          const legacy = document.getElementById("timer-bar");
+          if (legacy && legacy.parentElement) legacy.remove();
+        } catch (e) {}
+      })();
+
+      let _confettiState = null;
+
+      const totalTime = 45;
+      let timeRemaining = totalTime;
+      const initialScore = 1000;
+      const scoreInterval = 2;
+      let score = initialScore;
+      let lastScoreUpdateElapsed = -1;
+      let timerInterval = null;
+      let inactivityTimeout = null;
+      let startTimestamp = null;
+      let endTimestamp = null;
+      function positionTimerTrack() {
+        if (!timerContainer || !timerTrack) return;
+        const rect = timerContainer.getBoundingClientRect();
+        const leftPx = Math.round(rect.width * 0.04);
+        const reservedRight = Math.round(Math.max(220, rect.width * 0.292));
+        const widthPx = Math.max(
+          60,
+          Math.round(rect.width - leftPx - reservedRight)
+        );
+        const topPx = Math.round(rect.height * 0.63);
+        const heightPx = Math.max(26, Math.round(rect.height * 0.24));
+        timerTrack.style.left = leftPx + "px";
+        timerTrack.style.width = widthPx + "px";
+        timerTrack.style.top = topPx + "px";
+        timerTrack.style.height = heightPx + "px";
+      }
+      window.addEventListener("resize", positionTimerTrack);
+      document.addEventListener("fullscreenchange", () => positionTimerTrack());
+      document.addEventListener("webkitfullscreenchange", positionTimerTrack);
+      document.addEventListener("mozfullscreenchange", positionTimerTrack);
+      document.addEventListener("MSFullscreenChange", positionTimerTrack);
+
+      function updateBarFractional(remainingMs) {
+        const frac = Math.max(0, remainingMs / (totalTime * 1000));
+        if (timerBarFill) {
+          timerBarFill.style.width = (frac * 100).toFixed(4) + "%";
+        }
+        const secondsLeft = Math.max(0, Math.ceil(remainingMs / 1000 - 0.0001));
+        if (timerTrack) timerTrack.setAttribute("aria-valuenow", secondsLeft);
+        if (countdownEl) countdownEl.textContent = secondsLeft;
+      }
+
+      function startTimer() {
+        clearInterval(timerInterval);
+        startTimestamp = performance.now();
+        endTimestamp = startTimestamp + totalTime * 1000;
+
+        timeRemaining = totalTime;
+        score = initialScore;
+        lastScoreUpdateElapsed = -1;
+        if (countdownEl) countdownEl.textContent = timeRemaining;
+        if (scoreEl) scoreEl.textContent = score;
+
+        positionTimerTrack();
+
+        if (timerBarFill) timerBarFill.style.transition = "width 0.12s linear";
+
+        timerInterval = setInterval(() => {
+          const now = performance.now();
+          const remainingMs = Math.max(0, endTimestamp - now);
+
+          updateBarFractional(remainingMs);
+
+          const elapsed = Math.floor((now - startTimestamp) / 1000);
+
+          if (
+            elapsed > 0 &&
+            elapsed % scoreInterval === 0 &&
+            elapsed !== lastScoreUpdateElapsed
+          ) {
+            const steps = Math.max(1, Math.floor(totalTime / scoreInterval));
+            const dec = Math.ceil(initialScore / steps);
+            score = Math.max(0, score - dec);
+            if (scoreEl) scoreEl.textContent = score;
+            lastScoreUpdateElapsed = elapsed;
+          }
+
+          if (remainingMs <= 0) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            updateBarFractional(0);
+            endGame(false);
+          }
+        }, 100);
+
+        updateBarFractional(totalTime * 1000);
+      }
+
+      function stopTimer() {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      }
+
+      function showEndMessage(text, success) {
+        endMessageText.textContent = text;
+        endMessage.classList.remove("success", "fail");
+        endMessage.classList.add(success ? "success" : "fail", "show");
+        if (endRestartBtn) {
+          endRestartBtn.style.display = "inline-block";
+          endRestartBtn.setAttribute("aria-hidden", "false");
+        }
+        endMessage.setAttribute("tabindex", "-1");
+        endMessage.focus();
+      }
+      function hideEndMessage() {
+        endMessage.classList.remove("show", "success", "fail");
+        endMessageText.textContent = "";
+        endMessage.removeAttribute("tabindex");
+        if (endRestartBtn) {
+          endRestartBtn.style.display = "none";
+          endRestartBtn.setAttribute("aria-hidden", "true");
+        }
+      }
+
+      async function exitFullscreenIfAny() {
+        const ef =
+          document.exitFullscreen ||
+          document.webkitExitFullscreen ||
+          document.mozCancelFullScreen ||
+          document.msExitFullscreen;
+        try {
+          if (
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement ||
+            document.msFullscreenElement
+          ) {
+            await ef.call(document);
+          }
+        } catch (e) {}
+      }
+
+      function showGame() {
+        startOverlay.style.display = "none";
+        if (startHeaderImg) startHeaderImg.setAttribute("aria-hidden", "true");
+        gameArea.style.display = "flex";
+        gameArea.style.flexDirection = "column";
+        gameArea.style.opacity = "1";
+        gameArea.style.pointerEvents = "auto";
+        gameArea.setAttribute("aria-hidden", "false");
+        positionTimerTrack();
+      }
+      async function showStart() {
+        gameArea.style.display = "none";
+        startOverlay.style.display = "flex";
+        if (startHeaderImg) startHeaderImg.setAttribute("aria-hidden", "false");
+        gameArea.setAttribute("aria-hidden", "true");
+        setTimeout(() => startButton.focus(), 150);
+      }
+
+      /* ---------- Drag & Drop ---------- */
+      let draggingPiece = null;
+      document.addEventListener("dragstart", (e) => {
+        const el = e.target.closest(".piece");
+        if (!el) return;
+        if (!el.draggable) {
+          e.preventDefault();
+          return;
+        }
+        draggingPiece = el;
+        try {
+          e.dataTransfer.setData("text/plain", el.dataset.id);
+        } catch (_) {}
+        const imgEl = el.querySelector("img");
+        if (imgEl) {
+          try {
+            const crt = imgEl.cloneNode(true);
+            crt.style.width = (el.clientWidth || 2) + "px";
+            crt.style.height = (el.clientHeight || 2) + "px";
+            crt.style.position = "absolute";
+            crt.style.top = "-9999px";
+            crt.style.transform = "scaleX(-1)";
+            document.body.appendChild(crt);
+            e.dataTransfer.setDragImage(
+              crt,
+              crt.clientWidth / 2,
+              crt.clientHeight / 2
+            );
+            setTimeout(() => crt.remove(), 0);
+          } catch (_) {}
+        }
+        el.style.opacity = "0.6";
+      });
+      document.addEventListener("dragend", (e) => {
+        const el = e.target.closest(".piece");
+        if (!el) return;
+        draggingPiece = null;
+        el.style.opacity = "";
+      });
+
+      slots.forEach((s) => {
+        s.addEventListener("dragover", (e) => {
+          if (s.classList.contains("filled")) return;
+          e.preventDefault();
+          s.classList.add("dragover");
+        });
+        s.addEventListener("dragleave", (e) => {
+          s.classList.remove("dragover");
+        });
+        s.addEventListener("drop", (e) => {
+          e.preventDefault();
+          s.classList.remove("dragover");
+          if (!draggingPiece) return;
+          if (s.classList.contains("filled")) {
+            draggingPiece = null;
+            return;
+          }
+          if (s.querySelector(".piece")) {
+            s.animate(
+              [
+                { transform: "translateY(0)" },
+                { transform: "translateY(-6px)" },
+                { transform: "translateY(0)" },
+              ],
+              { duration: 180 }
+            );
+            draggingPiece = null;
+            return;
+          }
+          if (draggingPiece.dataset.id === s.dataset.id) {
+            const placed = document.createElement("div");
+            placed.className = "placed";
+            placed.appendChild(draggingPiece);
+            s.appendChild(placed);
+            s.classList.add("filled");
+            draggingPiece.draggable = false;
+            draggingPiece.style.cursor = "default";
+            checkCompletion();
+          } else {
+            s.animate(
+              [
+                { transform: "translateY(0)" },
+                { transform: "translateY(-8px)" },
+                { transform: "translateY(0)" },
+              ],
+              { duration: 200 }
+            );
+          }
+          draggingPiece = null;
+        });
+      });
+
+      (function touchPointerFallback() {
+        let active = null,
+          ghost = null,
+          activePointerId = null;
+        function createGhost(sourceEl) {
+          const img =
+            sourceEl.querySelector("img")?.cloneNode(true) ||
+            sourceEl.cloneNode(true);
+          img.style.position = "fixed";
+          img.style.transform = "scaleX(-1)";
+          img.style.left = "0";
+          img.style.top = "0";
+          img.style.width = Math.max(64, sourceEl.clientWidth) + "px";
+          img.style.height = Math.max(64, sourceEl.clientHeight) + "px";
+          img.style.pointerEvents = "none";
+          img.style.zIndex = 99999;
+          document.body.appendChild(img);
+          return img;
+        }
+        function moveGhost(g, x, y) {
+          if (!g) return;
+          const w = g.clientWidth / 2;
+          const h = g.clientHeight / 2;
+          g.style.transform = `translate(${x - w}px, ${y - h}px) scaleX(-1)`;
+        }
+        function onPointerDown(e) {
+          if (e.pointerType === "mouse") return;
+          const t = e.target.closest(".piece");
+          if (!t || !t.draggable) return;
+          e.preventDefault();
+          active = t;
+          activePointerId = e.pointerId;
+          active.setPointerCapture?.(activePointerId);
+          ghost = createGhost(active);
+          moveGhost(ghost, e.clientX, e.clientY);
+          document.body.style.touchAction = "none";
+          document.addEventListener("pointermove", onPointerMove);
+          document.addEventListener("pointerup", onPointerUp);
+          document.addEventListener("pointercancel", onPointerUp);
+        }
+        function onPointerMove(e) {
+          if (!active || e.pointerId !== activePointerId) return;
+          moveGhost(ghost, e.clientX, e.clientY);
+          const elUnder = document.elementFromPoint(e.clientX, e.clientY);
+          const slotUnder = elUnder && elUnder.closest(".slot");
+          slots.forEach((s) => s.classList.toggle("dragover", s === slotUnder));
+        }
+        function onPointerUp(e) {
+          if (!active || e.pointerId !== activePointerId) return;
+          const elUnder = document.elementFromPoint(e.clientX, e.clientY);
+          const slot = elUnder && elUnder.closest(".slot");
+          if (
+            slot &&
+            !slot.classList.contains("filled") &&
+            !slot.querySelector(".piece") &&
+            active.dataset.id === slot.dataset.id
+          ) {
+            const placed = document.createElement("div");
+            placed.className = "placed";
+            placed.appendChild(active);
+            slot.appendChild(placed);
+            slot.classList.add("filled");
+            active.draggable = false;
+            active.style.cursor = "default";
+            checkCompletion();
+          } else if (slot) {
+            slot.animate(
+              [
+                { transform: "translateY(0)" },
+                { transform: "translateY(-8px)" },
+                { transform: "translateY(0)" },
+              ],
+              { duration: 200 }
+            );
+          }
+          slots.forEach((s) => s.classList.remove("dragover"));
+          if (ghost && ghost.parentElement) ghost.remove();
+          ghost = null;
+          try {
+            active.releasePointerCapture?.(activePointerId);
+          } catch (_) {}
+          active = null;
+          activePointerId = null;
+          document.body.style.touchAction = "";
+          document.removeEventListener("pointermove", onPointerMove);
+          document.removeEventListener("pointerup", onPointerUp);
+          document.removeEventListener("pointercancel", onPointerUp);
+        }
+        document.addEventListener("pointerdown", onPointerDown, {
+          passive: false,
+        });
+      })();
+
+      /* ---------- Funciones completo y reinicio ---------- */
+      function checkCompletion() {
+        const ok = slots.every((slot) => {
+          const child = slot.querySelector(".piece");
+          return child && child.dataset.id === slot.dataset.id;
+        });
+        if (ok) endGame(true);
+      }
+
+      function restartRound() {
+        clearTimeout(inactivityTimeout);
+        hideEndMessage();
+        resetPuzzle(true);
+        startTimer();
+      }
+
+      function resetPuzzle(keepVisible) {
+        slots.forEach((slot) => {
+          slot.classList.remove("filled");
+          slot.style.pointerEvents = "";
+        });
+        slots.forEach((slot) => {
+          const placedPieces = slot.querySelectorAll(".placed .piece");
+          placedPieces.forEach((p) => {
+            p.draggable = true;
+            p.style.cursor = "grab";
+            p.classList.remove("disabled");
+            piecesRow.appendChild(p);
+          });
+          const wrappers = slot.querySelectorAll(".placed");
+          wrappers.forEach((w) => w.remove());
+        });
+        const allPieces = Array.from(document.querySelectorAll(".piece"));
+        allPieces.forEach((p) => {
+          p.draggable = true;
+          p.style.cursor = "grab";
+          p.classList.remove("disabled");
+          if (p.parentElement !== piecesRow) piecesRow.appendChild(p);
+          p.style.display = "";
+        });
+        draggingPiece = null;
+        timeRemaining = totalTime;
+        score = initialScore;
+        if (countdownEl) countdownEl.textContent = timeRemaining;
+        if (scoreEl) scoreEl.textContent = score;
+        hideEndMessage();
+        if (!keepVisible) stopTimer();
+        updateBarFractional(totalTime * 1000);
+        positionTimerTrack();
+      }
+
+      /* Efecto confetti */
+      function spawnParabolicConfetti(count = 90) {
+        if (_confettiState && _confettiState.active)
+          count = Math.min(40, count);
+        const vw = Math.max(
+          document.documentElement.clientWidth || 0,
+          window.innerWidth || 0
+        );
+        const vh = Math.max(
+          document.documentElement.clientHeight || 0,
+          window.innerHeight || 0
+        );
+        const centerX = vw / 2;
+        const centerY = vh / 2 + 80;
+        const now = performance.now();
+        const particles = [];
+        const gravity = 1800;
+        const origins = [
+          { x: -30, y: vh + 30 },
+          { x: vw + 30, y: vh + 30 },
+        ];
+        for (let i = 0; i < count; i++) {
+          const origin = origins[Math.floor(Math.random() * origins.length)];
+          const x0 = origin.x + (Math.random() - 0.5) * 80;
+          const y0 = origin.y + (Math.random() - 0.5) * 40;
+          const targetSpread = Math.max(60, Math.min(220, vw * 0.12));
+          const tx = centerX + (Math.random() - 0.5) * targetSpread;
+          const ty = centerY + (Math.random() - 0.5) * 40;
+          const dx = tx - x0,
+            dy = ty - y0;
+          const base = 0.75 + Math.random() * 0.8;
+          const distFactor = Math.min(
+            2.2,
+            Math.sqrt((dx * dx + dy * dy) / (vw * vw + vh * vh)) * 3.0
+          );
+          const t_f = Math.max(0.5, base * (1 + distFactor * 0.6));
+          const vx = dx / t_f;
+          const vy = (dy - 0.5 * gravity * t_f * t_f) / t_f;
+          const sizeW = 6 + Math.random() * 14;
+          const sizeH = 8 + Math.random() * 16;
+          const color = `hsl(${Math.floor(Math.random() * 360)} 85% 55%)`;
+          const rotSpeed = (Math.random() - 0.5) * 720;
+          const life = Math.max(700, t_f * 1000 + 800 + Math.random() * 600);
+          const el = document.createElement("div");
+          el.className = "confetti";
+          el.style.width = sizeW + "px";
+          el.style.height = sizeH + "px";
+          el.style.background = color;
+          el.style.left = "0px";
+          el.style.top = "0px";
+          el.style.opacity = "1";
+          el.style.transform = `translate(${x0}px, ${y0}px) rotate(0deg)`;
+          el.style.borderRadius = Math.random() > 0.5 ? "1px" : "50%";
+          document.body.appendChild(el);
+          particles.push({
+            el,
+            x: x0,
+            y: y0,
+            vx,
+            vy,
+            rotSpeed,
+            start: now,
+            life,
+          });
+        }
+        _confettiState = { active: true, particles };
+        let last = now;
+        function step(ts) {
+          const dt = Math.min(0.03, (ts - last) / 1000);
+          last = ts;
+          for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            const t = ts - p.start;
+            if (t >= p.life) {
+              if (p.el.parentElement) p.el.remove();
+              particles.splice(i, 1);
+              continue;
+            }
+            p.vy += gravity * dt;
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            const rotation = (p.rotSpeed * (t / 1000)) % 360;
+            p.el.style.transform = `translate(${p.x}px, ${p.y}px) rotate(${rotation}deg)`;
+            const alpha = Math.max(0, 1 - t / p.life);
+            p.el.style.opacity = alpha;
+          }
+          if (particles.length > 0) requestAnimationFrame(step);
+          else {
+            _confettiState.active = false;
+            _confettiState = null;
+          }
+        }
+        requestAnimationFrame(step);
+      }
+
+      /* Fin juego */
+      function endGame(success) {
+        stopTimer();
+        if (success) {
+          try {
+            spawnParabolicConfetti(90);
+          } catch (e) {
+            console.warn("Confetti error:", e);
+          }
+          showEndMessage("¡Buen trabajo!", true);
+        } else {
+          disablePieces();
+          showEndMessage("Has perdido.", false);
+        }
+        clearTimeout(inactivityTimeout);
+        inactivityTimeout = setTimeout(() => {
+          resetPuzzle(false);
+          showStart();
+        }, 5000);
+      }
+
+      function disablePieces() {
+        const pieces = document.querySelectorAll(".piece");
+        pieces.forEach((piece) => {
+          piece.setAttribute("draggable", "false");
+          piece.draggable = false;
+          piece.classList.add("disabled");
+          piece.style.cursor = "not-allowed";
+        });
+        slots.forEach((s) => (s.style.pointerEvents = "none"));
+      }
+
+      function enterFullscreen(el = document.documentElement) {
+        const fn =
+          el.requestFullscreen ||
+          el.webkitRequestFullscreen ||
+          el.mozRequestFullScreen ||
+          el.msRequestFullscreen;
+        if (!fn)
+          return Promise.reject(new Error("Fullscreen API no soportada"));
+        return fn.call(el);
+      }
+      function onFullscreenChange() {
+        const isFs =
+          !!document.fullscreenElement ||
+          !!document.webkitFullscreenElement ||
+          !!document.mozFullScreenElement ||
+          !!document.msFullscreenElement;
+        document.documentElement.classList.toggle("is-fullscreen", isFs);
+        positionTimerTrack();
+      }
+      document.addEventListener("fullscreenchange", onFullscreenChange);
+      document.addEventListener("webkitfullscreenchange", onFullscreenChange);
+      document.addEventListener("mozfullscreenchange", onFullscreenChange);
+      document.addEventListener("MSFullscreenChange", onFullscreenChange);
+
+      startButton.addEventListener("click", async () => {
+        try {
+          await enterFullscreen(document.documentElement);
+        } catch (e) {}
+        resetPuzzle(true);
+        showGame();
+        startTimer();
+      });
+
+      if (endRestartBtn) endRestartBtn.addEventListener("click", restartRound);
+
+      window.addEventListener("load", () => {
+        positionTimerTrack();
+      });
+
+      showStart();
+    </script>
+  </body>
+</html>
